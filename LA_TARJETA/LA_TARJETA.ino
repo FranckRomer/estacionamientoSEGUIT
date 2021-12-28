@@ -58,38 +58,12 @@
               t=millis();
           
               WiFi.mode(WIFI_STA);              
-              //WiFi.begin(ssid, pass);
-              configTime(0, 0, "pool.ntp.org", "time.nist.gov");
-              setenv("TZ", "CST6CDT,M4.1.0,M10.5.0", 1);
+             
 
-              /*
-              while (WiFi.status() != WL_CONNECTED)
-                {
-                  delay(100);
-                  Serial.print(".");
-                  }
-              Serial.println("Conectado a red WiFi");
-              Serial.print("Direccion IP del ESP32 : ");
-              Serial.println(WiFi.localIP());         
-              server.begin(132); // El servidor comienza a escuchar el puerto número 132 
-
-              delay(500);*/
-
-              setup_wifi();
-              server.begin(132); // El servidor comienza a escuchar el puerto número 132 
-              reconnect_MySQL();
-              /*
-               * 
-              Serial.print("Connecting to SQL...  ");
-               if (conn.connect(server_addr,3306, user, password))
-                    Serial.println("SQL OK.");
-               else
-                    Serial.println("SQL FAILED.");
-
-                  //create MySQL cursor object
-              cursor = new MySQL_Cursor(&conn);  
- 
-            delay(1000);*/
+              setup_wifi();         // Iniciamos configuracion del Wifi
+              server.begin(132);    // El servidor comienza a escuchar el puerto número 132 
+              reconnect_MySQL();    // Conectamos a MySQL
+              
               
           } //Ciero el void setup
 /*
@@ -99,6 +73,9 @@
 */
 
 void setup_wifi() {
+
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  setenv("TZ", "CST6CDT,M4.1.0,M10.5.0", 1);
   delay(10);
   // We start by connecting to a WiFi network
   Serial.println();
@@ -117,7 +94,8 @@ void setup_wifi() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
-  void reconnect_MySQL(){
+
+void reconnect_MySQL(){
               Serial.print("Connecting to SQL...  ");
               if (conn.connect(server_addr,3306, user, password))
                     Serial.println("SQL OK.");
