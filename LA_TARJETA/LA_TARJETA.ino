@@ -16,13 +16,15 @@
       String texto, buf2; 
       char buf[60],INSERT_SQL[200], evento[100];
       int tam;
+      int i = 0;
 
   // Variables Pic
       String comandoServer="", RESULT;
       char buf_pic[50];
 
       String  id_s;
-            
+
+      
       
             WiFiServer server;       
             WiFiClient client; 
@@ -57,8 +59,10 @@
               Serial.println();
               t=millis();
           
-              WiFi.mode(WIFI_STA);              
-             
+              WiFi.mode(WIFI_STA); 
+                           
+              configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+              setenv("TZ", "CST6CDT,M4.1.0,M10.5.0", 1);
 
               setup_wifi();         // Iniciamos configuracion del Wifi
               server.begin(132);    // El servidor comienza a escuchar el puerto número 132 
@@ -74,15 +78,15 @@
 
 void setup_wifi() {
 
-  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
-  setenv("TZ", "CST6CDT,M4.1.0,M10.5.0", 1);
+//  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+//  setenv("TZ", "CST6CDT,M4.1.0,M10.5.0", 1);
   delay(10);
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, pass);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -131,12 +135,29 @@ void reconnect_MySQL(){
                                 while (millis()-t>=1500)
                                 {                                
                                 client.print("!");  // Envío heartbeat
+                                Serial.print("!");
                                 
+                                
+                                i = i+1;
+                                if (i == 10){
+                                  i = 0;
+                                  client.stop();
+                                  server.begin(132);
+                                  //ESP.restart();
+                                  
+//                                  client.stop();
+//                                  WiFi.disconnect();
+//                                  setup_wifi();
+//                                  //WiFi.reconnect();
+//                                  server.begin(132);
+//                                  reconnect_MySQL(); 
+                                }
                                                              
                                 TimerServerSQLRead (); //}// Timer para leer DB cada segundo
                                         
                                         //RESULT.replace("<","<TPV");
                                         client.println(RESULT);
+                                        
                                           
                                          
                                            if (RESULT !=0)
@@ -179,7 +200,17 @@ void reconnect_MySQL(){
                            
                            if (texto.indexOf("TPV")>=1)
                            {
-
+                                /* 
+                                 *  **********************************************************************************************
+                                */
+                                //  Relizaremos un intento de coneccion para ver que todo este correcto
+                                // en caso de no estar conectado, se volvera a conectar
+                                if (!conn.connected()) {  
+                                      Serial.println("[MySQL no conectado, dejo de funcionar en el loop]");
+                                      reconnect_MySQL();  
+                                }
+                                i = 0;
+                                
                                 ///////////
                                 
                                 String bufTPV;
@@ -209,24 +240,7 @@ void reconnect_MySQL(){
 
                                 client.print("<SQLWRT1>");
                                 delay(200);     
-
-                                /*
-                                 * 
-                                 *    Reconeccion de el servidor
-                                 * 
-                                 */
-                                // Aqui hacemos una reconeccion del sistema
-                                if (!conn.connected()) {  
-                                      Serial.println("[MySQL no conectado, dejo de funcionar en el loop]");
-                                      reconnect_MySQL();  
-                                }
-
-                             
-                                client.stop();
-                                setup_wifi();
-                                server.begin(132); // El servidor comienza a escuchar el puerto número 132 
-                                reconnect_MySQL();  
-                                                            
+                                               
                            }
 
 
@@ -240,8 +254,6 @@ void reconnect_MySQL(){
                   Serial.println();
                   Serial.println("[Cliente desconectado]");
 
-                  setup_wifi();
-                  server.begin(132);   
 
    /// AQUI TERMINA EL PROGRAMA PRINCIPAL 
 
