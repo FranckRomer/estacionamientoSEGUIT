@@ -135,23 +135,10 @@ void reconnect_MySQL(){
                                 while (millis()-t>=1500)
                                 {                                
                                 client.print("!");  // Envío heartbeat
-                                Serial.print("!");
+                                //Serial.print("!");
                                 
                                 
-                                i = i+1;
-                                if (i == 10){
-                                  i = 0;
-                                  client.stop();
-                                  server.begin(132);
-                                  //ESP.restart();
-                                  
-//                                  client.stop();
-//                                  WiFi.disconnect();
-//                                  setup_wifi();
-//                                  //WiFi.reconnect();
-//                                  server.begin(132);
-//                                  reconnect_MySQL(); 
-                                }
+
                                                              
                                 TimerServerSQLRead (); //}// Timer para leer DB cada segundo
                                         
@@ -161,7 +148,8 @@ void reconnect_MySQL(){
                                           
                                          
                                            if (RESULT !=0)
-                                          {              
+                                          {           
+                                            i = 0;   
                                             Serial.println(RESULT);
                                             MySQL_Cursor *cur_update = new MySQL_Cursor(&conn);
                                             //String update_tabla = "UPDATE conacclatarjeta.eventosPC SET fechaAtencion = '" + get_time() + "', estatus = 'leido' WHERE id = " + id_s +";";
@@ -180,8 +168,15 @@ void reconnect_MySQL(){
                                           }
                                           else if (RESULT==""){
                                             ///
+                                                i = i+1;
+                                                if (i == 10){
+                                                  i = 0;
+                                                  client.stop();
+                                                }  
                                 
-                                          }    
+                                          }   
+
+                                         
                                                 RESULT="";
                                                     
                                        //////////***********///////////**********///////////********
@@ -205,10 +200,10 @@ void reconnect_MySQL(){
                                 */
                                 //  Relizaremos un intento de coneccion para ver que todo este correcto
                                 // en caso de no estar conectado, se volvera a conectar
-                                if (!conn.connected()) {  
-                                      Serial.println("[MySQL no conectado, dejo de funcionar en el loop]");
-                                      reconnect_MySQL();  
-                                }
+//                                if (!conn.connected()) {  
+//                                      Serial.println("[MySQL no conectado, dejo de funcionar en el loop]");
+//                                      reconnect_MySQL();  
+//                                }
                                 i = 0;
                                 
                                 ///////////
