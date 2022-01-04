@@ -4,12 +4,17 @@
 #include <WiFi.h>
 #include <MySQL_Connection.h>
 #include <MySQL_Cursor.h>
+//
 
-
-     // const char *ssid = "INFINITUM729C_2.4";
-     // const char *pass = "LaTarjeta123";
+//      const char *ssid = "INFINITUM729C_2.4";
+//      const char *pass = "LaTarjeta123";
       const char *ssid = "RED ACCESA";
       const char *pass = "037E32E7";      
+//
+      IPAddress ip(192,168,1,161);     
+      IPAddress gateway(192,168,1,1);   
+      IPAddress subnet(255,255,255,0);
+      
       unsigned long t=0;
 
    // Variables server
@@ -17,6 +22,7 @@
       char buf[60],INSERT_SQL[200], evento[100];
       int tam;
       int i = 0;
+      int j = 0;
 
   // Variables Pic
       String comandoServer="", RESULT;
@@ -33,8 +39,8 @@
                   
       
       
-            IPAddress server_addr(192,168,1,221);  // IP del server MySQL:  231 - 221
-            char user[] = "root";              // MySQL usuario
+            IPAddress server_addr(192,168,1,221);    // IP del server MySQL:  231 - 221
+            char user[] = "root";                    // MySQL usuario
             char password[] = "ALAala123,.-";        // Contraseña MySQL        
 
                   
@@ -85,8 +91,10 @@ void setup_wifi() {
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
+  WiFi.config(ip, gateway, subnet);
 
   WiFi.begin(ssid, pass);
+  
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -125,6 +133,18 @@ void reconnect_MySQL(){
 
               
               WiFiClient client = server.available(); // Intenta crear un objeto de cliente
+              Serial.print(client);
+
+              
+              j = j+1;
+              
+              if (j == 100){
+                j = 0;
+                client.stop();
+                Serial.println("");
+              }              
+
+              
               if (client) // Si el cliente está disponible
               {
                Serial.println("[Cliente conectado]");
